@@ -5,9 +5,15 @@ type RowType = {
 export const sortByColumn = (
   data: RowType[],
   sortedColumn: string | null,
-  sortOrder: 'asc' | 'desc'
+  sortOrder: 'asc' | 'desc',
+  currentPage: number,
+  itemsPerPage: number
 ) => {
-  return [...data].sort((a, b) => {
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const paginatedData = data.slice(indexOfFirstItem, indexOfLastItem);
+
+  const sortedData = [...paginatedData].sort((a, b) => {
     if (sortedColumn) {
       if (a[sortedColumn] < b[sortedColumn]) {
         return sortOrder === 'asc' ? -1 : 1;
@@ -18,4 +24,6 @@ export const sortByColumn = (
     }
     return 0;
   });
+
+  return sortedData;
 };
