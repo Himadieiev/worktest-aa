@@ -1,21 +1,31 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import Table from 'react-bootstrap/Table';
-
 import { campaignsData } from '../data/campaingsData';
+import { sortByColumn } from '../utils/sort';
 
 const CampaignsPage: FC = () => {
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortedColumn, setSortedColumn] = useState<string | null>(null);
+
+  const handleSort = (columnName: string) => {
+    setSortedColumn(columnName);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
+
+  const sortedData = sortByColumn(campaignsData, sortedColumn, sortOrder);
+
   return (
     <Table striped bordered hover>
       <thead>
         <tr>
-          <th>Id</th>
-          <th>Clicks</th>
-          <th>Cost</th>
-          <th>Date</th>
+          <th onClick={() => handleSort('campaignId')}>Id</th>
+          <th onClick={() => handleSort('clicks')}>Clicks</th>
+          <th onClick={() => handleSort('cost')}>Cost</th>
+          <th onClick={() => handleSort('date')}>Date</th>
         </tr>
       </thead>
       <tbody>
-        {campaignsData.map(campaign => (
+        {sortedData.map(campaign => (
           <tr key={campaign.campaignId}>
             <td>{campaign.campaignId}</td>
             <td>{campaign.clicks}</td>
