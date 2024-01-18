@@ -3,12 +3,19 @@ import Table from 'react-bootstrap/Table';
 import { campaignsData } from '../data/campaingsData';
 import { sortByColumn } from '../utils/sort';
 import PaginationComponent from '../components/PaginationComponent';
+import Filter from '../components/Filter';
 
 const CampaignsPage: FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedColumn, setSortedColumn] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 4;
+
+  const [filterClick, setFilterClick] = useState<string | null>(null);
+
+  const handleChange = (value: string | null) => {
+    setFilterClick(value);
+  };
 
   const handleSort = (columnName: string) => {
     setSortedColumn(columnName);
@@ -29,9 +36,24 @@ const CampaignsPage: FC = () => {
     setCurrentPage(pageNumber);
   };
 
+  const filteredData = sortedData.filter(campaign => {
+    if (typeof campaign.clicks === 'number') {
+      const filterClickNumber = Number(filterClick);
+
+      return isNaN(filterClickNumber) ? true : campaign.clicks >= filterClickNumber;
+    }
+
+    return;
+  });
+
   return (
     <>
       <h1 className="fs-3 my-3">Campaigns</h1>
+      <Filter
+        filteredBy="Clicks (greater than or equal to)"
+        onFilterChange={handleChange}
+        placeholderText="Enter the Key Number"
+      />
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -42,7 +64,7 @@ const CampaignsPage: FC = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedData.map(campaign => (
+          {filteredData.map(campaign => (
             <tr key={campaign.campaignId}>
               <td>{campaign.campaignId}</td>
               <td>{campaign.clicks}</td>

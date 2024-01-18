@@ -5,12 +5,19 @@ import { Link } from 'react-router-dom';
 import { accountsData } from '../data/accountsData';
 import { sortByColumn } from '../utils/sort';
 import PaginationComponent from '../components/PaginationComponent';
+import Filter from '../components/Filter';
 
 const AccountsPage: FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedColumn, setSortedColumn] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 4;
+
+  const [filterEmail, setFilterEmail] = useState<string | null>(null);
+
+  const handleChange = (value: string | null) => {
+    setFilterEmail(value);
+  };
 
   const handleSort = (columnName: string) => {
     setSortedColumn(columnName);
@@ -25,9 +32,21 @@ const AccountsPage: FC = () => {
     setCurrentPage(pageNumber);
   };
 
+  const filteredData = sortedData.filter(account => {
+    if (typeof account.email === 'string') {
+      return !filterEmail || account.email.toLowerCase().includes(filterEmail.toLowerCase());
+    }
+    return;
+  });
+
   return (
     <>
       <h1 className="fs-3 my-3">Accounts</h1>
+      <Filter
+        filteredBy="Emails"
+        onFilterChange={handleChange}
+        placeholderText="Enter the Keyword"
+      />
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -38,7 +57,7 @@ const AccountsPage: FC = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedData.map(account => (
+          {filteredData.map(account => (
             <tr key={account.accountId}>
               <td>
                 <Link

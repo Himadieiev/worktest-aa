@@ -5,12 +5,19 @@ import { Link } from 'react-router-dom';
 import { profilesData } from '../data/profilesData';
 import { sortByColumn } from '../utils/sort';
 import PaginationComponent from '../components/PaginationComponent';
+import Filter from '../components/Filter';
 
 const ProfilesPage: FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [sortedColumn, setSortedColumn] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 4;
+
+  const [filterCountry, setFilterCountry] = useState<string | null>(null);
+
+  const handleChange = (value: string | null) => {
+    setFilterCountry(value);
+  };
 
   const handleSort = (columnName: string) => {
     setSortedColumn(columnName);
@@ -25,9 +32,21 @@ const ProfilesPage: FC = () => {
     setCurrentPage(pageNumber);
   };
 
+  const filteredData = sortedData.filter(account => {
+    if (typeof account.country === 'string') {
+      return !filterCountry || account.country.toLowerCase().includes(filterCountry.toLowerCase());
+    }
+    return;
+  });
+
   return (
     <>
       <h1 className="fs-3 my-3">Profiles</h1>
+      <Filter
+        filteredBy="Countries"
+        onFilterChange={handleChange}
+        placeholderText="Enter the Keyword"
+      />
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -37,7 +56,7 @@ const ProfilesPage: FC = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedData.map(profile => (
+          {filteredData.map(profile => (
             <tr key={profile.profileId}>
               <td>
                 <Link
